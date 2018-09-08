@@ -44,7 +44,7 @@ static void	cammera_shell_collide_callback_common(bool& do_collide, bool bo1, dC
 		return;
 	c.surface.mu = 0;
 
-	dJointID contact_joint = dJointCreateContactSpecial(nullptr, ContactGroup, &c);//dJointCreateContact(0, ContactGroup, &c);//
+	dJointID contact_joint = dJointCreateContact(nullptr, ContactGroup, &c);
 	CPHObject* obj = (CPHObject*)my_data->callback_data;
 	VERIFY(obj);
 #ifdef	DEBUG

@@ -19,61 +19,85 @@
  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
  *                                                                       *
  *************************************************************************/
-#pragma once
+
+#ifndef _ODE_CONTACT_H_
+#define _ODE_CONTACT_H_
+
 #include "common.h"
 
-extern "C" 
-{
-	enum 
-	{
-		dContactMu2		= 0x001,
-		dContactFDir1		= 0x002,
-		dContactBounce	= 0x004,
-		dContactSoftERP	= 0x008,
-		dContactSoftCFM	= 0x010,
-		dContactMotion1	= 0x020,
-		dContactMotion2	= 0x040,
-		dContactSlip1		= 0x080,
-		dContactSlip2		= 0x100,
-
-		dContactApprox0	= 0x0000,
-		dContactApprox1_1	= 0x1000,
-		dContactApprox1_2	= 0x2000,
-		dContactApprox1	= 0x3000
-	};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-	typedef struct dSurfaceParameters 
-	{
-	/* must always be defined */
-		int mode;
-		dReal mu;
+enum {
+  dContactMu2		= 0x001,
+  dContactFDir1		= 0x002,
+  dContactBounce	= 0x004,
+  dContactSoftERP	= 0x008,
+  dContactSoftCFM	= 0x010,
+  dContactMotion1	= 0x020,
+  dContactMotion2	= 0x040,
+  dContactSlip1		= 0x080,
+  dContactSlip2		= 0x100,
 
-	/* only defined if the corresponding flag is set in mode */
-		dReal mu2;
-		dReal bounce;
-		dReal bounce_vel;
-		dReal soft_erp;
-		dReal soft_cfm;
-		dReal motion1,motion2;
-		dReal slip1,slip2;
-	} dSurfaceParameters;
+  dContactApprox0	= 0x0000,
+  dContactApprox1_1	= 0x1000,
+  dContactApprox1_2	= 0x2000,
+  dContactApprox1	= 0x3000
+};
 
 
-/* contact info set by collision functions */
-	typedef struct dContactGeom 
-	{
-		dVector3 pos;
-		dVector3 normal;
-		dReal depth;
-		dGeomID g1,g2;
-	} dContactGeom;
+typedef struct dSurfaceParameters {
+  /* must always be defined */
+  int mode;
+  dReal mu;
+
+  /* only defined if the corresponding flag is set in mode */
+  dReal mu2;
+  dReal bounce;
+  dReal bounce_vel;
+  dReal soft_erp;
+  dReal soft_cfm;
+  dReal motion1,motion2;
+  dReal slip1,slip2;
+} dSurfaceParameters;
+
+
+/**
+ * @brief Describe the contact point between two geoms.
+ *
+ * If two bodies touch, or if a body touches a static feature in its 
+ * environment, the contact is represented by one or more "contact 
+ * points", described by dContactGeom.
+ *
+ * The convention is that if body 1 is moved along the normal vector by 
+ * a distance depth (or equivalently if body 2 is moved the same distance 
+ * in the opposite direction) then the contact depth will be reduced to 
+ * zero. This means that the normal vector points "in" to body 1.
+ *
+ * @ingroup collide
+ */
+typedef struct dContactGeom {
+    dVector3 pos;          /*< contact position*/
+    dVector3 normal;       /*< normal vector*/
+    dReal depth;           /*< penetration depth*/
+    dGeomID g1,g2;         /*< the colliding geoms*/
+    int side1,side2;       /*< (to be documented)*/
+} dContactGeom;
+
 
 /* contact info used by contact joint */
-	typedef struct dContact 
-	{
-		dContactGeom geom;
-		dSurfaceParameters surface;
-		dVector3 fdir1;
-	} dContact;
+
+typedef struct dContact {
+  dSurfaceParameters surface;
+  dContactGeom geom;
+  dVector3 fdir1;
+} dContact;
+
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

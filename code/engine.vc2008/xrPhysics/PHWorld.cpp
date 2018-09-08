@@ -133,8 +133,8 @@ void CPHWorld::Create(CObjectSpace * os, CObjectList *lo, CRenderDeviceBase *dv)
 	m_device = dv;
 
 	Device().AddSeqFrame(this, true);
+	//dWorldSetAutoEnableDepthSF1(phWorld, 100000000);
 
-	dWorldSetAutoEnableDepthSF1(phWorld, 100000000);
 	ContactGroup = dJointGroupCreate(0);
 	dWorldSetGravity(phWorld, 0, -Gravity(), 0);//-2.f*9.81f
 	Mesh.Create(0, phWorld);
@@ -174,7 +174,9 @@ void CPHWorld::Destroy()
 	dJointGroupDestroy(ContactGroup);
 	ContactFeedBacks.clear();
 	ContactEffectors.clear();
-	dCloseODE();
+	
+	//dCloseODE();
+	
 	dCylinderClassUser = -1;
 	dRayMotionsClassUser = -1;
 

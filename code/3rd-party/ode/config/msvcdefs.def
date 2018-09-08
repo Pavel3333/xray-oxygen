@@ -145,7 +145,6 @@ dJointAttach
 dJointCreateAMotor
 dJointCreateBall
 dJointCreateContact
-dJointCreateContactSpecial
 dJointCreateFixed
 dJointCreateHinge
 dJointCreateHinge2
@@ -287,7 +286,6 @@ dWorldGetAutoDisableFlag
 dWorldGetAutoDisableLinearThreshold
 dWorldGetAutoDisableSteps
 dWorldGetAutoDisableTime
-dWorldGetAutoEnableDepthSF1
 dWorldGetCFM
 dWorldGetERP
 dWorldGetGravity
@@ -297,12 +295,10 @@ dWorldSetAutoDisableFlag
 dWorldSetAutoDisableLinearThreshold
 dWorldSetAutoDisableSteps
 dWorldSetAutoDisableTime
-dWorldSetAutoEnableDepthSF1
 dWorldSetCFM
 dWorldSetERP
 dWorldSetGravity
 dWorldStep
-dWorldStepFast1
 dWorldQuickStep
 dWorldSetQuickStepNumIterations
 dWorldGetQuickStepNumIterations

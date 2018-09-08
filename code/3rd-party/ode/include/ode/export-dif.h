@@ -26,7 +26,15 @@
 #include "common.h"
 
 
-void dWorldExportDIF (dWorldID w, FILE *file, const char *world_name);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+ODE_API void dWorldExportDIF (dWorldID w, FILE *file, const char *world_name);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

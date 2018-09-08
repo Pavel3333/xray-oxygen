@@ -38,10 +38,15 @@
 #include "mass.h"
 #include "misc.h"
 #include "objects.h"
-#include "odecpp.h"
 #include "collision_space.h"
 #include "collision.h"
-#include "odecpp_collision.h"
+#include "threading.h"
+#include "threading_impl.h"
 #include "export-dif.h"
+
+#ifdef __cplusplus
+#include "odecpp.h"
+#include "odecpp_collision.h"
+#endif
 
 #endif

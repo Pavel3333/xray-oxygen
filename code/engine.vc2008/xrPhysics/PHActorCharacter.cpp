@@ -284,8 +284,8 @@ static void BigVelSeparate(dContact* c, bool &do_collide)
 
 	c->surface.mu = 1.00f;
 
-	dJointID contact_joint1 = dJointCreateContactSpecial(0, ContactGroup, c);
-	dJointID contact_joint2 = dJointCreateContactSpecial(0, ContactGroup, c);
+	dJointID contact_joint1 = dJointCreateContact(0, ContactGroup, c);
+	dJointID contact_joint2 = dJointCreateContact(0, ContactGroup, c);
 
 	ch1->Enable();
 	ch2->Enable();
@@ -326,7 +326,7 @@ void CPHActorCharacter::InitContact(dContact* c, bool &do_collide, u16 material_
 			!(b1 ? static_cast<CPHCharacter*>(retrieveGeomUserData(c->geom.g2)->ph_object)->ActorMovable() : static_cast<CPHCharacter*>(retrieveGeomUserData(c->geom.g1)->ph_object)->ActorMovable())
 			)
 		{
-			dJointID contact_joint = dJointCreateContactSpecial(0, ContactGroup, c);
+			dJointID contact_joint = dJointCreateContact(0, ContactGroup, c);
 			Enable();
 			CPHObject::Island().DActiveIsland()->ConnectJoint(contact_joint);
 			if (b1)

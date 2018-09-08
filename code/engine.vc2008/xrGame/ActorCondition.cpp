@@ -407,9 +407,9 @@ float CActorCondition::GetInjuriousMaterialDamage()
 	if(mat_injurios!=GAMEMTL_NONE_IDX)
 	{
 		const SGameMtl* mtl		= GMLib.GetMaterialByIdx(mat_injurios);
-		return					mtl->fInjuriousSpeed;
+		return					mtl ? mtl->fInjuriousSpeed : 0.f;
 	}else
-		return 0.0f;
+		return 0.f;
 }
 
 void CActorCondition::SetZoneDanger( float danger, ALife::EInfluenceType type )

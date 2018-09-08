@@ -27,7 +27,7 @@
 #define _ODE_ODECPP_COLLISION_H_
 #ifdef __cplusplus
 
-#include "../../include/ode/error.h"
+//#include "../../include/ode/error.h"
 
 
 class dGeom {
@@ -38,9 +38,9 @@ class dGeom {
 protected:
   dGeomID _id;
 
-public:
   dGeom()
     { _id = 0; }
+public:
   ~dGeom()
     { if (_id) dGeomDestroy (_id); }
 
@@ -107,6 +107,26 @@ public:
   int isEnabled()
     { return dGeomIsEnabled (_id); }
 
+  void getRelPointPos (dReal px, dReal py, dReal pz, dVector3 result) const
+    { dGeomGetRelPointPos (_id, px, py, pz, result); }
+  void getRelPointPos (const dVector3 p, dVector3 result) const
+    { getRelPointPos (p[0], p[1], p[2], result); }
+
+  void getPosRelPoint (dReal px, dReal py, dReal pz, dVector3 result) const
+    { dGeomGetPosRelPoint (_id, px, py, pz, result); }
+  void getPosRelPoint (const dVector3 p, dVector3 result) const
+    { getPosRelPoint (p[0], p[1], p[2], result); }
+
+  void vectorToWorld (dReal px, dReal py, dReal pz, dVector3 result) const
+    { dGeomVectorToWorld (_id, px, py, pz, result); }
+  void vectorToWorld (const dVector3 p, dVector3 result) const
+    { vectorToWorld (p[0], p[1], p[2], result); }
+
+  void vectorFromWorld (dReal px, dReal py, dReal pz, dVector3 result) const
+    { dGeomVectorFromWorld (_id, px, py, pz, result); }
+  void vectorFromWorld (const dVector3 p, dVector3 result) const
+    { vectorFromWorld (p[0], p[1], p[2], result); }
+  
   void collide2 (dGeomID g, void *data, dNearCallback *callback)
     { dSpaceCollide2 (_id,g,data,callback); }
 };
@@ -157,6 +177,10 @@ class dSimpleSpace : public dSpace {
   void operator= (dSimpleSpace &);
 
 public:
+  dSimpleSpace ()
+    { _id = (dGeomID) dSimpleSpaceCreate (0); }
+  dSimpleSpace (dSpace &space)
+    { _id = (dGeomID) dSimpleSpaceCreate (space.id()); }
   dSimpleSpace (dSpaceID space)
     { _id = (dGeomID) dSimpleSpaceCreate (space); }
 };
@@ -168,8 +192,13 @@ class dHashSpace : public dSpace {
   void operator= (dHashSpace &);
 
 public:
+  dHashSpace ()
+    { _id = (dGeomID) dHashSpaceCreate (0); }
+  dHashSpace (dSpace &space)
+    { _id = (dGeomID) dHashSpaceCreate (space.id()); }
   dHashSpace (dSpaceID space)
     { _id = (dGeomID) dHashSpaceCreate (space); }
+
   void setLevels (int minlevel, int maxlevel)
     { dHashSpaceSetLevels (id(),minlevel,maxlevel); }
 };
@@ -181,7 +210,11 @@ class dQuadTreeSpace : public dSpace {
   void operator= (dQuadTreeSpace &);
 
 public:
-  dQuadTreeSpace (dSpaceID space, dVector3 center, dVector3 extents, int depth)
+  dQuadTreeSpace (const dVector3 center, const dVector3 extents, int depth)
+    { _id = (dGeomID) dQuadTreeSpaceCreate (0,center,extents,depth); }
+  dQuadTreeSpace (dSpace &space, const dVector3 center, const dVector3 extents, int depth)
+    { _id = (dGeomID) dQuadTreeSpaceCreate (space.id(),center,extents,depth); }
+  dQuadTreeSpace (dSpaceID space, const dVector3 center, const dVector3 extents, int depth)
     { _id = (dGeomID) dQuadTreeSpaceCreate (space,center,extents,depth); }
 };
 
@@ -193,6 +226,10 @@ class dSphere : public dGeom {
 
 public:
   dSphere () { }
+  dSphere (dReal radius)
+    { _id = dCreateSphere (0, radius); }
+  dSphere (dSpace &space, dReal radius)
+    { _id = dCreateSphere (space.id(), radius); }
   dSphere (dSpaceID space, dReal radius)
     { _id = dCreateSphere (space, radius); }
 
@@ -215,6 +252,10 @@ class dBox : public dGeom {
 
 public:
   dBox () { }
+  dBox (dReal lx, dReal ly, dReal lz)
+    { _id = dCreateBox (0,lx,ly,lz); }
+  dBox (dSpace &space, dReal lx, dReal ly, dReal lz)
+    { _id = dCreateBox (space,lx,ly,lz); }
   dBox (dSpaceID space, dReal lx, dReal ly, dReal lz)
     { _id = dCreateBox (space,lx,ly,lz); }
 
@@ -237,6 +278,10 @@ class dPlane : public dGeom {
 
 public:
   dPlane() { }
+  dPlane (dReal a, dReal b, dReal c, dReal d)
+    { _id = dCreatePlane (0,a,b,c,d); }
+  dPlane (dSpace &space, dReal a, dReal b, dReal c, dReal d)
+    { _id = dCreatePlane (space.id(),a,b,c,d); }
   dPlane (dSpaceID space, dReal a, dReal b, dReal c, dReal d)
     { _id = dCreatePlane (space,a,b,c,d); }
 
@@ -252,6 +297,32 @@ public:
 };
 
 
+class dCapsule : public dGeom {
+  // intentionally undefined, don't use these
+  dCapsule (dCapsule &);
+  void operator= (dCapsule &);
+
+public:
+  dCapsule() { }
+  dCapsule (dReal radius, dReal length)
+    { _id = dCreateCapsule (0,radius,length); }
+  dCapsule (dSpace &space, dReal radius, dReal length)
+    { _id = dCreateCapsule (space.id(),radius,length); }
+  dCapsule (dSpaceID space, dReal radius, dReal length)
+    { _id = dCreateCapsule (space,radius,length); }
+
+  void create (dSpaceID space, dReal radius, dReal length) {
+    if (_id) dGeomDestroy (_id);
+    _id = dCreateCapsule (space,radius,length);
+  }
+
+  void setParams (dReal radius, dReal length)
+    { dGeomCapsuleSetParams (_id, radius, length); }
+  void getParams (dReal *radius, dReal *length) const
+    { dGeomCapsuleGetParams (_id,radius,length); }
+};
+
+
 class dCCylinder : public dGeom {
   // intentionally undefined, don't use these
   dCCylinder (dCCylinder &);
@@ -259,6 +330,10 @@ class dCCylinder : public dGeom {
 
 public:
   dCCylinder() { }
+  dCCylinder (dReal radius, dReal length)
+    { _id = dCreateCCylinder (0,radius,length); }
+  dCCylinder (dSpace &space, dReal radius, dReal length)
+    { _id = dCreateCCylinder (space.id(),radius,length); }
   dCCylinder (dSpaceID space, dReal radius, dReal length)
     { _id = dCreateCCylinder (space,radius,length); }
 
@@ -281,6 +356,10 @@ class dRay : public dGeom {
 
 public:
   dRay() { }
+  dRay (dReal length)
+    { _id = dCreateRay (0,length); }
+  dRay (dSpace &space, dReal length)
+    { _id = dCreateRay (space.id(),length); }
   dRay (dSpaceID space, dReal length)
     { _id = dCreateRay (space,length); }
 
@@ -299,24 +378,58 @@ public:
   void get (dVector3 start, dVector3 dir)
     { dGeomRayGet (_id, start, dir); }
 
+#ifdef WIN32
+#pragma warning( push )
+#pragma warning( disable : 4996 )
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+  ODE_API_DEPRECATED
   void setParams (int firstContact, int backfaceCull)
     { dGeomRaySetParams (_id, firstContact, backfaceCull); }
+
+  ODE_API_DEPRECATED
   void getParams (int *firstContact, int *backfaceCull)
     { dGeomRayGetParams (_id, firstContact, backfaceCull); }
+#ifdef WIN32
+#pragma warning( pop )
+#else
+#pragma GCC diagnostic pop
+#endif
+  void setBackfaceCull (int backfaceCull)
+    { dGeomRaySetBackfaceCull (_id, backfaceCull); }
+  int getBackfaceCull()
+    { return dGeomRayGetBackfaceCull (_id); }
+
+  void setFirstContact (int firstContact)
+    { dGeomRaySetFirstContact (_id, firstContact); }
+  int getFirstContact()
+    { return dGeomRayGetFirstContact (_id); }
+
   void setClosestHit (int closestHit)
     { dGeomRaySetClosestHit (_id, closestHit); }
   int getClosestHit()
     { return dGeomRayGetClosestHit (_id); }
 };
 
+#ifdef WIN32
+#pragma warning( push )
+#pragma warning( disable : 4996 )
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
-class dGeomTransform : public dGeom {
+class ODE_API_DEPRECATED dGeomTransform : public dGeom {
   // intentionally undefined, don't use these
   dGeomTransform (dGeomTransform &);
   void operator= (dGeomTransform &);
 
 public:
   dGeomTransform() { }
+  dGeomTransform (dSpace &space)
+    { _id = dCreateGeomTransform (space.id()); }
   dGeomTransform (dSpaceID space)
     { _id = dCreateGeomTransform (space); }
 
@@ -341,6 +454,13 @@ public:
     { return dGeomTransformGetInfo (_id); }
 };
 
+#ifdef WIN32
+#pragma warning( pop )
+#else
+#pragma GCC diagnostic pop
+#endif
+
+//}
 
 #endif
 #endif
