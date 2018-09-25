@@ -16,16 +16,16 @@ void fix_texture_name(LPSTR fn)
 {
 	LPSTR _ext = strext(fn);
 	if (_ext &&
-		(0 == stricmp(_ext, ".tga") ||
-			0 == stricmp(_ext, ".dds") ||
-			0 == stricmp(_ext, ".bmp") ||
-			0 == stricmp(_ext, ".ogm")))
+		(0 == stricmp(_ext, TextureFormats.TGA) ||
+			0 == stricmp(_ext, TextureFormats.DDS) ||
+			0 == stricmp(_ext, TextureFormats.BMP) ||
+			0 == stricmp(_ext, TextureFormats.OGM)))
 		*_ext = 0;
 }
 
 ENGINE_API bool is_enough_address_space_available();
 
-int get_texture_load_lod(LPCSTR fn)
+u8 get_texture_load_lod(LPCSTR fn)
 {
 	CInifile::Sect& sect = pSettings->r_section("reduce_lod_texture_list");
 
@@ -84,7 +84,7 @@ void				TW_Save(ID3DTexture2D* T, LPCSTR name, LPCSTR prefix, LPCSTR postfix)
 	string256		fn;		strconcat(sizeof(fn), fn, name, "_", prefix, "-", postfix);
 	for (int it = 0; it<int(xr_strlen(fn)); it++)
 		if ('\\' == fn[it])	fn[it] = '_';
-	string256		fn2;	strconcat(sizeof(fn2), fn2, "debug\\", fn, ".dds");
+	string256		fn2;	strconcat(sizeof(fn2), fn2, "debug\\", fn, TextureFormats.DDS);
 	Log("* debug texture save: ", fn2);
 	R_CHK(D3DXSaveTextureToFile(fn2, D3DXIFF_DDS, T, nullptr));
 }
@@ -260,7 +260,7 @@ ID3DBaseTexture*	CRender::texture_load(LPCSTR fRName, u32& ret_msize)
 	string_path				fn;
 	u32						dwWidth, dwHeight;
 	u32						img_size = 0;
-	int						img_loaded_lod = 0;
+	u8						img_loaded_lod = 0;
 	D3DFORMAT				fmt;
 	u32						mip_cnt = u32(-1);
 
@@ -276,10 +276,10 @@ ID3DBaseTexture*	CRender::texture_load(LPCSTR fRName, u32& ret_msize)
 	fix_texture_name(fname);
 	IReader* S = nullptr;
 
-	if (!FS.exist(fn, "$game_textures$", fname, ".dds") && strstr(fname, "_bump"))	goto _BUMP_from_base;
-	if (FS.exist(fn, "$level$", fname, ".dds"))									goto _DDS;
-	if (FS.exist(fn, "$game_saves$", fname, ".dds"))							goto _DDS;
-	if (FS.exist(fn, "$game_textures$", fname, ".dds"))							goto _DDS;
+	if (!FS.exist(fn, GameDirectories.G_TEXTURES, fname, TextureFormats.DDS) && strstr(fname, "_bump"))	goto _BUMP_from_base;
+	if (FS.exist(fn, GameDirectories.LEVEL, fname, TextureFormats.DDS))									goto _DDS;
+	if (FS.exist(fn, GameDirectories.G_SAVES, fname, TextureFormats.DDS))							    goto _DDS;
+	if (FS.exist(fn, GameDirectories.G_TEXTURES, fname, TextureFormats.DDS))							goto _DDS;
 
 
 #ifdef _EDITOR
@@ -288,7 +288,7 @@ ID3DBaseTexture*	CRender::texture_load(LPCSTR fRName, u32& ret_msize)
 #else
 
 	Msg("! Can't find texture '%s'", fname);
-	R_ASSERT(FS.exist(fn, "$game_textures$", "ed\\ed_not_existing_texture", ".dds"));
+	R_ASSERT(FS.exist(fn, GameDirectories.G_TEXTURES, "ed\\ed_not_existing_texture", TextureFormats.DDS));
 	goto _DDS;
 
 #endif
@@ -308,7 +308,7 @@ _DDS:
 			Msg("! Can't get image info for texture '%s'", fn);
 			FS.r_close(S);
 			string_path			temp;
-			R_ASSERT(FS.exist(temp, "$game_textures$", "ed\\ed_not_existing_texture", ".dds"));
+			R_ASSERT(FS.exist(temp, GameDirectories.G_TEXTURES, "ed\\ed_not_existing_texture", TextureFormats.DDS));
 			R_ASSERT(xr_strcmp(temp, fn));
 			xr_strcpy(fn, temp);
 			goto _DDS;
@@ -337,7 +337,7 @@ _DDS:
 			if (FAILED(result)) {
 				Msg("! Can't load texture '%s'", fn);
 				string_path			temp;
-				R_ASSERT(FS.exist(temp, "$game_textures$", "ed\\ed_not_existing_texture", ".dds"));
+				R_ASSERT(FS.exist(temp, GameDirectories.G_TEXTURES, "ed\\ed_not_existing_texture", TextureFormats.DDS));
 				R_ASSERT(xr_strcmp(temp, fn));
 				xr_strcpy(fn, temp);
 				goto _DDS;
@@ -373,7 +373,7 @@ _DDS:
 			if (FAILED(result)) {
 				Msg("! Can't load texture '%s'", fn);
 				string_path			temp;
-				R_ASSERT(FS.exist(temp, "$game_textures$", "ed\\ed_not_existing_texture", ".dds"));
+				R_ASSERT(FS.exist(temp, GameDirectories.G_TEXTURES, "ed\\ed_not_existing_texture", TextureFormats.DDS));
 				strlwr(temp);
 				R_ASSERT(xr_strcmp(temp, fn));
 				xr_strcpy(fn, temp);
@@ -398,7 +398,7 @@ _BUMP_from_base:
 		//////////////////
 		if (strstr(fname, "_bump#"))
 		{
-			R_ASSERT2(FS.exist(fn, "$game_textures$", "ed\\ed_dummy_bump#", ".dds"), "ed_dummy_bump#");
+			R_ASSERT2(FS.exist(fn, GameDirectories.G_TEXTURES, "ed\\ed_dummy_bump#", TextureFormats.DDS), "ed_dummy_bump#");
 			S = FS.r_open(fn);
 			R_ASSERT2(S, fn);
 			img_size = S->length();
@@ -406,7 +406,7 @@ _BUMP_from_base:
 		}
 		if (strstr(fname, "_bump"))
 		{
-			R_ASSERT2(FS.exist(fn, "$game_textures$", "ed\\ed_dummy_bump", ".dds"), "ed_dummy_bump");
+			R_ASSERT2(FS.exist(fn, GameDirectories.G_TEXTURES, "ed\\ed_dummy_bump", TextureFormats.DDS), "ed_dummy_bump");
 			S = FS.r_open(fn);
 
 			R_ASSERT2(S, fn);
@@ -417,7 +417,7 @@ _BUMP_from_base:
 		//////////////////
 
 		*strstr(fname, "_bump") = 0;
-		R_ASSERT2(FS.exist(fn, "$game_textures$", fname, ".dds"), fname);
+		R_ASSERT2(FS.exist(fn, GameDirectories.G_TEXTURES, fname, TextureFormats.DDS), fname);
 
 		// Load   SYS-MEM-surface, bound to device restrictions
 		D3DXIMAGE_INFO			IMG;

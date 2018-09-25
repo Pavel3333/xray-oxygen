@@ -51,7 +51,7 @@ LPCSTR dxUIRender::UpdateShaderName(LPCSTR tex_name, LPCSTR sh_name)
 	u32		v_dev	= CAP_VERSION(HW.Caps.raster_major, HW.Caps.raster_minor);
 	u32		v_need	= CAP_VERSION(2,0);
 
-	return ((v_dev >= v_need) && FS.exist(buff, "$game_textures$", tex_name, ".ogm")) ? "hud\\movie" : sh_name;
+	return ((v_dev >= v_need) && FS.exist(buff, GameDirectories.G_TEXTURES, tex_name, TextureFormats.OGM)) ? "hud\\movie" : sh_name;
 }
 void dxUIRender::PushPoint(float x, float y, float z, u32 C, float u, float v)
 {

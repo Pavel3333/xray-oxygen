@@ -17,11 +17,11 @@
 void fix_texture_name(LPSTR fn)
 {
 	LPSTR _ext = strext(fn);
-	if(_ext && (!stricmp(_ext,".tga") || !stricmp(_ext,".dds") || !stricmp(_ext,".bmp") || !stricmp(_ext,".ogm")))
+	if(_ext && (!stricmp(_ext, TextureFormats.TGA) || !stricmp(_ext,TextureFormats.DDS) || !stricmp(_ext,TextureFormats.BMP) || !stricmp(_ext,TextureFormats.OGM)))
 		*_ext = 0;
 }
 
-int get_texture_load_lod(LPCSTR fn)
+uint8_t get_texture_load_lod(LPCSTR fn)
 {
 	CInifile::Sect& sect = pSettings->r_section("reduce_lod_texture_list");
 
@@ -81,7 +81,7 @@ void				TW_Save	(ID3DTexture2D* T, LPCSTR name, LPCSTR prefix, LPCSTR postfix)
 	string256		fn;		strconcat	(sizeof(fn),fn,name,"_",prefix,"-",postfix);
 	for (int it=0; it<int(xr_strlen(fn)); it++)	
 		if ('\\'==fn[it])	fn[it]	= '_';
-	string256		fn2;	strconcat	(sizeof(fn2),fn2,"debug\\",fn,".dds");
+	string256		fn2;	strconcat	(sizeof(fn2),fn2,"debug\\",fn,TextureFormats.DDS);
 	Log						("* debug texture save: ",fn2);
 #ifdef USE_DX11
 	R_CHK					(D3DX11SaveTextureToFile(HW.pContext, T, D3DX11_IFF_DDS, fn2));
@@ -121,15 +121,15 @@ ID3DBaseTexture*	CRender::texture_load(LPCSTR fRName, u32& ret_msize, bool bStag
 	xr_strcpy(fname,fRName); //. andy if (strext(fname)) *strext(fname)=0;
 	fix_texture_name		(fname);
 	IReader* S				= NULL;
-	if (!FS.exist(fn, "$game_textures$", fname, ".dds") && strstr(fname,"_bump"))	goto _BUMP_from_base;
-	if (FS.exist(fn, "$level_textures$", fname, ".dds"))							goto _DDS;
-	if (FS.exist(fn, "$level$", fname,	".dds"))									goto _DDS;
-	if (FS.exist(fn,"$game_saves$",		fname,	".dds"))							goto _DDS;
-	if (FS.exist(fn,"$game_textures$",	fname,	".dds"))							goto _DDS;
+	if (!FS.exist(fn, "$game_textures$", fname, TextureFormats.DDS) && strstr(fname,"_bump"))	goto _BUMP_from_base;
+	if (FS.exist(fn, "$level_textures$", fname, TextureFormats.DDS))							goto _DDS;
+	if (FS.exist(fn, "$level$", fname,	TextureFormats.DDS))									goto _DDS;
+	if (FS.exist(fn,"$game_saves$",		fname,	TextureFormats.DDS))							goto _DDS;
+	if (FS.exist(fn,"$game_textures$",	fname,	TextureFormats.DDS))							goto _DDS;
 
 
 	Msg("! Can't find texture '%s'",fname);
-	R_ASSERT(FS.exist(fn,"$game_textures$",	"ed\\ed_not_existing_texture",".dds"));
+	R_ASSERT(FS.exist(fn,"$game_textures$",	"ed\\ed_not_existing_texture",TextureFormats.DDS));
 	goto _DDS;
 
 _DDS:
@@ -235,7 +235,7 @@ _BUMP_from_base:
 		//////////////////
 		if (strstr(fname,"_bump#"))			
 		{
-			R_ASSERT2	(FS.exist(fn,"$game_textures$",	"ed\\ed_dummy_bump#",	".dds"), "ed_dummy_bump#");
+			R_ASSERT2	(FS.exist(fn,"$game_textures$",	"ed\\ed_dummy_bump#",	TextureFormats.DDS), "ed_dummy_bump#");
 			S						= FS.r_open	(fn);
 			R_ASSERT2				(S, fn);
 			img_size				= S->length	();
@@ -243,7 +243,7 @@ _BUMP_from_base:
 		}
 		if (strstr(fname,"_bump"))			
 		{
-			R_ASSERT2	(FS.exist(fn,"$game_textures$",	"ed\\ed_dummy_bump",	".dds"),"ed_dummy_bump");
+			R_ASSERT2	(FS.exist(fn,"$game_textures$",	"ed\\ed_dummy_bump",	TextureFormats.DDS),"ed_dummy_bump");
 			S						= FS.r_open	(fn);
 
 			R_ASSERT2	(S, fn);

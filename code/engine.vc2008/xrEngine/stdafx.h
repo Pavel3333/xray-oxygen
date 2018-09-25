@@ -39,7 +39,8 @@
 
 // Our headers
 #include "engine.h"
-#include "defines.h"
+#include "defines.h" //TODO: replace paths defs to consts structs!
+#include "consts.h"
 
 #ifndef NO_XRLOG
 #include "../xrcore/log.h"

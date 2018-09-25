@@ -19,11 +19,11 @@ void fix_texture_thm_name(LPSTR fn)
 {
 	LPSTR _ext = strext(fn);
 	if(  _ext					&&
-	  (0==stricmp(_ext,".tga")	||
-		0==stricmp(_ext,".thm")	||
-		0==stricmp(_ext,".dds")	||
-		0==stricmp(_ext,".bmp")	||
-		0==stricmp(_ext,".ogm")	) )
+	  (0==stricmp(_ext,TextureFormats.TGA)	||
+		0==stricmp(_ext,TextureFormats.THM)	||
+		0==stricmp(_ext,TextureFormats.DDS)	||
+		0==stricmp(_ext,TextureFormats.BMP)	||
+		0==stricmp(_ext,TextureFormats.OGM)	) )
 		*_ext = 0;
 }
 
@@ -144,7 +144,7 @@ void CTextureDescrMngr::LoadTHM(FS_FileSet& flist, LPCSTR initial, map_TD &s_tex
 void CTextureDescrMngr::Load()
 {
 	TH_LoadTHM lvltex( "$level_textures$", m_texture_details, m_detail_scalers );
-	TH_LoadTHM gtex( "$game_textures$", m_texture_details, m_detail_scalers );
+	TH_LoadTHM gtex(GameDirectories.G_TEXTURES, m_texture_details, m_detail_scalers );
 	TH_LoadTHM lvl( "$level$", m_texture_details, m_detail_scalers );
 
     std::vector<HANDLE> hThreads;
